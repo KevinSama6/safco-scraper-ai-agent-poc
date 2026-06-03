@@ -378,7 +378,7 @@ The JavaScript Object Notation (JSON) file preserves nested fields such as produ
 The current Proof of Concept (POC) includes a product processing limit:
 
 ```python
-MAX_POC_PRODUCTS = 5
+MAX_POC_PRODUCTS = 10
 ```
 
 This controls runtime, token usage, and Application Programming Interface (API) cost during demonstration.
