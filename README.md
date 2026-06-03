@@ -1,14 +1,12 @@
-# Safco Dental Product Scraping Artificial Intelligence Agent Proof of Concept (AI Agent POC)
+# Safco Dental Product Scraping AI Agent POC
 
-## 1. Project Overview
+## Overview
 
-This project is a working Proof of Concept (POC) for an Artificial Intelligence (AI) assisted product scraping and structured catalog extraction system.
+This project is a working Proof of Concept (POC) for an Artificial Intelligence (AI) assisted product scraping system.
 
-The goal of this project is to demonstrate how an agent-based scraping workflow can discover product pages from Safco Dental Supply category pages, extract structured product information from product detail pages, and store the extracted data in a queryable and exportable format.
+The goal is to scrape product information from the Safco Dental Supply website, extract structured product catalog data, and store/export the result in a usable format.
 
-The target website is Safco Dental Supply.
-
-The current Proof of Concept (POC) focuses on the following two required categories:
+The POC focuses on the two required categories:
 
 * Sutures & Surgical Products
   https://www.safcodental.com/catalog/sutures-surgical-products
@@ -16,70 +14,30 @@ The current Proof of Concept (POC) focuses on the following two required categor
 * Dental Exam Gloves
   https://www.safcodental.com/catalog/gloves
 
-This project is not intended to be a full production crawler yet. Instead, it demonstrates a clean working slice of a system that can realistically evolve into a production-ready product catalog extraction pipeline.
+This project is not meant to be a complete production crawler. It is a small working prototype that shows the main workflow can run end to end.
 
 ---
 
-## 2. Project Goals
+## What This Project Does
 
-The project is designed to show that the system can:
+The current prototype can:
 
-* Start from predefined category pages
+* Start from the two required category pages
+* Fetch rendered page content using Playwright
 * Discover product detail page Uniform Resource Locators (URLs)
-* Traverse category pages and product pages
-* Extract structured product data
-* Normalize extracted data into a consistent schema
-* Store results in a MySQL relational database
-* Export sample output into Comma-Separated Values (CSV) and JavaScript Object Notation (JSON) files
-* Track processing status for resumability and checkpointing
-* Separate navigation, extraction, storage, and export responsibilities
-* Use Artificial Intelligence (AI) where it provides practical value
+* Store category and product URLs in a MySQL queue
+* Process pending product pages
+* Extract structured product data with a Large Language Model (LLM)
+* Validate the extracted structure with Pydantic
+* Save product records into MySQL
+* Export sample output to Comma-Separated Values (CSV) and JavaScript Object Notation (JSON)
 
 ---
 
-## 3. High-Level Architecture
-
-The system follows an agent-based pipeline design.
-
-```text
-Seed Category Uniform Resource Locators (URLs)
-        |
-        v
-MySQL Uniform Resource Locator (URL) Queue
-        |
-        v
-Navigator Agent
-        |
-        v
-Discovered Product Uniform Resource Locators (URLs)
-        |
-        v
-MySQL Uniform Resource Locator (URL) Queue
-        |
-        v
-Extractor Agent
-        |
-        v
-Structured Product Model
-        |
-        v
-MySQL Products Table
-        |
-        v
-Sample Output Export
-```
-
-The main workflow is controlled by `pipeline.py`.
-
-The system first inserts the two target category Uniform Resource Locators (URLs) into a MySQL queue. The Navigator Agent processes category pages and discovers product detail page Uniform Resource Locators (URLs). The Extractor Agent then visits product detail pages, extracts structured product information, validates the result with a Pydantic schema, and saves the output into MySQL.
-
----
-
-## 4. Project Structure
+## Project Structure
 
 ```text
 safco_scraper_poc/
-│
 ├── agents.py
 ├── db.py
 ├── export_sample.py
@@ -90,74 +48,100 @@ safco_scraper_poc/
 ├── README.md
 ├── .env.example
 ├── .gitignore
-│
 └── output/
     ├── sample_products.csv
     └── sample_products.json
 ```
 
-### File Responsibilities
+Main files:
 
-| File               | Responsibility                                                                                        |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `pipeline.py`      | Main orchestration workflow for the scraping pipeline                                                 |
-| `scraper.py`       | Page fetching using Playwright browser automation                                                     |
-| `agents.py`        | Navigator Agent and Extractor Agent logic                                                             |
-| `models.py`        | Pydantic data models for structured product extraction                                                |
-| `db.py`            | MySQL database initialization and database operations                                                 |
-| `export_sample.py` | Exports product data from MySQL to Comma-Separated Values (CSV) and JavaScript Object Notation (JSON) |
-| `requirements.txt` | Python dependency list                                                                                |
-| `.env.example`     | Example environment variable configuration                                                            |
-| `output/`          | Sample exported product data                                                                          |
+* `pipeline.py`: controls the full scraping workflow
+* `scraper.py`: fetches rendered HyperText Markup Language (HTML) using Playwright
+* `agents.py`: contains the Navigator Agent and Extractor Agent
+* `models.py`: defines the Pydantic product schema
+* `db.py`: handles MySQL tables, queue operations, and product storage
+* `export_sample.py`: exports product data from MySQL to CSV and JSON
 
 ---
 
-## 5. Agent Responsibilities
+## Architecture
 
-## 5.1 Navigator Agent
+```text
+Seed Category URLs
+        |
+        v
+MySQL URL Queue
+        |
+        v
+Navigator Agent
+        |
+        v
+Product URLs
+        |
+        v
+MySQL URL Queue
+        |
+        v
+Extractor Agent
+        |
+        v
+Pydantic Product Model
+        |
+        v
+MySQL Products Table
+        |
+        v
+CSV / JSON Export
+```
 
-The Navigator Agent is responsible for finding product detail page Uniform Resource Locators (URLs) from category or listing pages.
-
-Current responsibilities:
-
-* Receive HyperText Markup Language (HTML) content from a category page
-* Parse the page structure
-* Identify product detail page links
-* Convert relative links into absolute Uniform Resource Locators (URLs)
-* Filter out non-product links such as cart pages, login pages, account pages, image files, Portable Document Format (PDF) files, and category pages
-* Return product detail page Uniform Resource Locators (URLs) to the pipeline
-* Insert discovered product Uniform Resource Locators (URLs) into the MySQL queue
-
-The Navigator Agent uses a hybrid strategy:
-
-1. Rule-based HyperText Markup Language (HTML) parsing for deterministic and low-cost product link discovery
-2. Large Language Model (LLM) fallback when page layouts are irregular or difficult to parse with rules alone
-
-This design avoids using Artificial Intelligence (AI) unnecessarily. Deterministic parsing is used first because it is cheaper, faster, and more predictable. The Large Language Model (LLM) is reserved for cases where it adds practical value.
-
----
-
-## 5.2 Extractor Agent
-
-The Extractor Agent is responsible for extracting structured product data from product detail pages.
-
-Current responsibilities:
-
-* Receive HyperText Markup Language (HTML) content from a product detail page
-* Extract product information according to the Pydantic schema
-* Capture product name, brand, category hierarchy, product Uniform Resource Locator (URL), description, specifications, image Uniform Resource Locators (URLs), alternative products, and variants
-* Extract variant-level information such as Stock Keeping Unit (SKU), size or color, price, and availability when visible
-* Return a validated structured `ProductModel`
-
-The Extractor Agent uses a Large Language Model (LLM) with structured output validation. Pydantic is used to enforce the expected schema.
+The workflow uses a MySQL queue table to track each URL as `pending`, `completed`, or `failed`. This allows the prototype to resume work and avoid processing the same URL multiple times.
 
 ---
 
-## 6. Data Model
+## Agent Responsibilities
 
-The extracted product data is normalized into a structured product schema.
+### Navigator Agent
 
-## 6.1 Product Model
+The Navigator Agent is responsible for finding product detail page URLs from category pages.
+
+It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The Large Language Model (LLM) can be used as a fallback when the page structure is harder to parse.
+
+Responsibilities:
+
+* Read category page HTML
+* Find product page links
+* Convert relative links into absolute URLs
+* Filter out non-product links
+* Return product URLs to the pipeline
+
+### Extractor Agent
+
+The Extractor Agent is responsible for extracting product data from product detail pages.
+
+Responsibilities:
+
+* Read product page HTML
+* Extract structured fields based on the Pydantic schema
+* Return a validated product object
+* Support product variants when visible on the page
+
+Fields extracted include:
+
+* Product name
+* Brand or manufacturer
+* Category hierarchy
+* Product URL
+* Description
+* Specifications
+* Image URLs
+* Alternative products
+* Variants, including Stock Keeping Unit (SKU), size, price, and availability
+
+---
+
+## Data Schema
+
+### ProductModel
 
 ```python
 class ProductModel(BaseModel):
@@ -172,7 +156,7 @@ class ProductModel(BaseModel):
     variants: List[ProductVariant]
 ```
 
-## 6.2 Product Variant Model
+### ProductVariant
 
 ```python
 class ProductVariant(BaseModel):
@@ -182,94 +166,42 @@ class ProductVariant(BaseModel):
     availability: Optional[str]
 ```
 
-## 6.3 Stock Keeping Unit (SKU)
-
-Stock Keeping Unit (SKU) refers to the item code or product variant code used to identify a specific sellable product or variant.
-
-For example, one glove product may have multiple sizes, and each size may have a different Stock Keeping Unit (SKU).
-
-In this Proof of Concept (POC), Stock Keeping Unit (SKU) extraction is supported when the product page clearly exposes a visible item number, item code, product code, catalog number, or Stock Keeping Unit (SKU). Obvious invalid values such as `0`, `1`, empty strings, `null`, and `N/A` are filtered during export.
-
-In a production version, Stock Keeping Unit (SKU) validation would be strengthened with additional rule-based checks and confidence scoring.
+Stock Keeping Unit (SKU) means the item code or product variant code. In the POC, obvious invalid SKU values such as `0`, `1`, empty values, `null`, and `N/A` are filtered during export.
 
 ---
 
-## 7. Database Design
+## Database Tables
 
-The project uses MySQL as the persistence layer.
+### urls_queue
 
-There are two main tables:
+This table tracks category and product URLs.
 
-1. `urls_queue`
-2. `products`
+| Field        | Description                         |
+| ------------ | ----------------------------------- |
+| `url`        | Category or product URL             |
+| `url_type`   | `category` or `product`             |
+| `status`     | `pending`, `completed`, or `failed` |
+| `updated_at` | Last update time                    |
 
----
+### products
 
-## 7.1 Uniform Resource Locator Queue Table
+This table stores extracted product data.
 
-The `urls_queue` table stores category and product Uniform Resource Locators (URLs) and tracks their processing status.
-
-Example fields:
-
-```text
-url
-url_type
-status
-updated_at
-```
-
-Field descriptions:
-
-| Field        | Description                                            |
-| ------------ | ------------------------------------------------------ |
-| `url`        | Category or product Uniform Resource Locator (URL)     |
-| `url_type`   | Either `category` or `product`                         |
-| `status`     | Processing status: `pending`, `completed`, or `failed` |
-| `updated_at` | Last update timestamp                                  |
-
-This table supports:
-
-* Resumability
-* Checkpointing
-* Deduplication
-* Failure recovery
-* Future worker-based scaling
+| Field         | Description                                |
+| ------------- | ------------------------------------------ |
+| `product_url` | Product detail page URL                    |
+| `data`        | Extracted product data stored as JSON text |
+| `updated_at`  | Last update time                           |
 
 ---
 
-## 7.2 Products Table
+## Setup
 
-The `products` table stores extracted product records.
-
-Example fields:
-
-```text
-product_url
-data
-updated_at
-```
-
-Field descriptions:
-
-| Field         | Description                                                                 |
-| ------------- | --------------------------------------------------------------------------- |
-| `product_url` | Unique product detail page Uniform Resource Locator (URL)                   |
-| `data`        | Structured product payload stored as JavaScript Object Notation (JSON) text |
-| `updated_at`  | Last update timestamp                                                       |
-
-The `product_url` field is used as the primary key. This makes writes idempotent, meaning the same product can be processed multiple times without creating duplicate records.
-
----
-
-## 8. Setup Instructions
-
-## 8.1 Create a Python Virtual Environment
+### 1. Create a virtual environment
 
 ```bash
 python -m venv venv
 ```
-
-Activate the virtual environment.
 
 Windows PowerShell:
 
@@ -277,29 +209,25 @@ Windows PowerShell:
 .\venv\Scripts\Activate.ps1
 ```
 
-macOS or Linux:
+macOS / Linux:
 
 ```bash
 source venv/bin/activate
 ```
 
----
-
-## 8.2 Install Python Dependencies
+### 2. Install dependencies
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Install the Playwright Chromium browser:
+Install Playwright Chromium:
 
 ```bash
 python -m playwright install chromium
 ```
 
----
-
-## 8.3 Configure Environment Variables
+### 3. Configure environment variables
 
 Create a `.env` file based on `.env.example`.
 
@@ -315,46 +243,17 @@ MYSQL_DATABASE=safco_scraper
 MYSQL_PORT=3306
 ```
 
-Important:
+Do not commit the `.env` file to GitHub.
 
-The `.env` file should not be committed to GitHub. It may contain sensitive values such as an OpenAI Application Programming Interface (API) key and a MySQL password.
-
----
-
-## 8.4 Initialize MySQL
-
-Create the database if it does not already exist:
-
-```sql
-CREATE DATABASE safco_scraper;
-```
-
-The application also creates the required tables automatically when `pipeline.py` runs.
-
----
-
-## 8.5 Run the Pipeline
+### 4. Run the pipeline
 
 ```bash
 python pipeline.py
 ```
 
-The pipeline will:
+The pipeline will initialize the database, insert the two seed categories, discover product URLs, extract product data, and save results into MySQL.
 
-1. Initialize the MySQL database tables
-2. Insert the two required seed category Uniform Resource Locators (URLs)
-3. Fetch category pages using Playwright
-4. Discover product detail page Uniform Resource Locators (URLs)
-5. Insert product Uniform Resource Locators (URLs) into the queue
-6. Fetch product detail pages
-7. Extract structured product data using the Extractor Agent
-8. Save product data into MySQL
-
----
-
-## 8.6 Export Sample Output
-
-After running the pipeline, export the sample product data:
+### 5. Export sample output
 
 ```bash
 python export_sample.py
@@ -367,291 +266,129 @@ output/sample_products.csv
 output/sample_products.json
 ```
 
-The Comma-Separated Values (CSV) file provides a flat view for quick review in spreadsheet tools.
-
-The JavaScript Object Notation (JSON) file preserves nested fields such as product variants, image Uniform Resource Locators (URLs), and specifications.
-
 ---
 
-## 9. Runtime Controls
+## Runtime Control
 
-The current Proof of Concept (POC) includes a product processing limit:
+The POC limits the number of extracted product pages to keep runtime and API cost controlled.
 
 ```python
-MAX_POC_PRODUCTS = 10
+MAX_POC_PRODUCTS = 5
 ```
 
-This controls runtime, token usage, and Application Programming Interface (API) cost during demonstration.
+This value can be increased to process more product pages.
 
-To process more products, increase the value.
-
-The pipeline also includes a delay between requests:
+The pipeline also includes a small delay between requests:
 
 ```python
 REQUEST_DELAY_SECONDS = 2
 ```
 
-This helps reduce request frequency and avoids putting unnecessary load on the target website.
+---
+
+## Sample Output
+
+Sample output is included under the `output/` folder:
+
+* `sample_products.csv`
+* `sample_products.json`
+
+The CSV file is useful for quick review in spreadsheet tools.
+The JSON file keeps nested data such as variants, image URLs, and specifications.
 
 ---
 
-## 10. Sample Output
+## Current Limitations
 
-Sample output is included in the `output/` folder.
+This is a POC, so there are some limitations:
 
-Expected files:
-
-```text
-output/sample_products.csv
-output/sample_products.json
-```
-
-Example output fields:
-
-```text
-product_name
-brand
-product_url
-sku
-size_or_color
-price
-availability
-category_hierarchy
-specifications
-image_urls
-alternative_products
-variants
-description
-updated_at
-```
-
-The sample output demonstrates that the system can extract products from the required categories and store the results in a structured format.
-
-Some values may be empty if they are not publicly visible on the product page.
+* It only processes a limited number of products by default.
+* Pagination support can be expanded further.
+* Some prices or availability values may not be publicly visible.
+* Some SKU values may require stronger validation.
+* The system starts from two predefined seed categories instead of crawling the whole site.
+* It does not yet include parallel workers.
+* It does not yet include a monitoring dashboard.
+* It does not yet include automated tests.
 
 ---
 
-## 11. Validation and Data Cleaning
+## Failure Handling
 
-The current Proof of Concept (POC) includes lightweight validation and data cleaning.
+The `urls_queue` table provides basic failure handling.
 
-Current validation includes:
+Each URL has a status:
 
-* Pydantic schema validation for structured product output
-* Uniform Resource Locator (URL) deduplication using MySQL primary keys
-* Queue status tracking with `pending`, `completed`, and `failed`
-* Idempotent product writes using `ON DUPLICATE KEY UPDATE`
-* Export-level cleanup for invalid Stock Keeping Unit (SKU) values such as `0`, `1`, empty strings, `null`, and `N/A`
+* `pending`
+* `completed`
+* `failed`
 
-Production-level validation could include:
+If a page fails, the pipeline marks it as `failed` and continues processing other URLs. This makes it easier to inspect or retry failed pages later.
 
-* Rule-based Stock Keeping Unit (SKU) extraction from visible labels such as `Item #`, `Product Code`, `Catalog #`, or `SKU`
-* Missing-field checks
-* Price format validation
-* Availability normalization
-* Image Uniform Resource Locator (URL) validation
-* Confidence scoring for Large Language Model (LLM) extracted fields
-* Manual review queue for low-confidence records
+Possible future improvements:
 
----
-
-## 12. Failure Handling and Resumability
-
-The system uses the `urls_queue` table to support failure handling and resumability.
-
-Each Uniform Resource Locator (URL) has one of the following statuses:
-
-```text
-pending
-completed
-failed
-```
-
-If a category page or product page fails, the pipeline marks that Uniform Resource Locator (URL) as `failed` instead of stopping the entire run.
-
-This allows the system to:
-
-* Continue processing other Uniform Resource Locators (URLs)
-* Inspect failed Uniform Resource Locators (URLs) later
-* Retry failed Uniform Resource Locators (URLs) in a future run
-* Avoid duplicate processing of completed Uniform Resource Locators (URLs)
-
-Future improvements could include:
-
-* Retry counters
+* Retry count
+* Failure reason column
 * Exponential backoff
-* Failure reason logging
 * Dead-letter queue
 * Alerting for repeated failures
 
 ---
 
-## 13. Current Limitations
+## Scaling to Production
 
-This project is a Proof of Concept (POC), so it has several known limitations:
+To move this POC toward production, I would add:
 
-* The default run only processes a limited number of product pages.
-* Some product prices or availability values may not be publicly visible.
-* Some product fields may require login or additional website interaction.
-* Stock Keeping Unit (SKU) extraction may need stricter rule-based validation in production.
-* Pagination support can be extended further for full category coverage.
-* The current database schema stores nested product data as JavaScript Object Notation (JSON) text for flexibility.
-* The crawler currently starts from predefined seed categories instead of discovering the entire site map.
-* The system does not yet include distributed workers.
-* The system does not yet include a full monitoring dashboard.
-* The system does not yet include automated tests.
+* Full pagination handling
+* More rule-based validation for SKU, price, availability, and product variants
+* Retry logic with exponential backoff
+* Structured logging
+* Run IDs and processing metrics
+* Parallel workers that process pending product URLs from the queue
+* Docker deployment
+* Cloud scheduler or workflow orchestration
+* Managed secrets for API keys and database passwords
 
----
-
-## 14. Production Hardening Plan
-
-To evolve this Proof of Concept (POC) into a production-ready system, I would improve the following areas.
+The current MySQL queue design already supports a basic path toward scaling because pending product URLs can be processed by one or more workers.
 
 ---
 
-## 14.1 Rate Limiting
+## Data Quality Monitoring
 
-Add configurable per-domain rate limits to control request frequency and reduce load on the target website.
+For production, I would monitor:
 
----
-
-## 14.2 Retry Logic
-
-Add retry policies with exponential backoff for temporary failures such as network errors, page load timeouts, and transient Application Programming Interface (API) errors.
-
----
-
-## 14.3 Idempotency
-
-Use unique constraints on product Uniform Resource Locators (URLs) and product identifiers to prevent duplicate records when the pipeline is rerun.
-
-The current Proof of Concept (POC) already uses primary keys and `ON DUPLICATE KEY UPDATE` for basic idempotent writes.
-
----
-
-## 14.4 Pagination Handling
-
-Extend the Navigator Agent to detect and follow pagination links on category pages.
-
-This would allow the system to crawl all listing pages under a category instead of only the initially loaded product links.
-
----
-
-## 14.5 Stronger Validation
-
-Add stricter rule-based validators for:
-
-* Stock Keeping Unit (SKU)
-* Product name
-* Price
-* Availability
-* Image Uniform Resource Locators (URLs)
-* Product variant completeness
-
----
-
-## 14.6 Observability
-
-Add structured logging, run identifiers, processing metrics, and failure summaries.
-
-Useful metrics include:
-
-* Number of category pages processed
-* Number of product Uniform Resource Locators (URLs) discovered
-* Number of product pages completed
-* Number of failed Uniform Resource Locators (URLs)
-* Extraction success rate
-* Missing field rate
-* Average processing time per page
-* Token usage
-* Application Programming Interface (API) cost
-
----
-
-## 14.7 Secrets Management
-
-Move all credentials into environment variables or a managed secret store.
-
-Sensitive values include:
-
-* OpenAI Application Programming Interface (API) key
-* MySQL password
-* Any future cloud service credentials
-
-No secrets should be committed to source control.
-
----
-
-## 14.8 Deployment Path
-
-A production version could be deployed using:
-
-* Docker containerization
-* Google Cloud Run
-* Amazon Web Services Elastic Container Service (AWS ECS)
-* Azure Container Apps
-* Managed MySQL or PostgreSQL
-* Cloud Scheduler, cron jobs, Apache Airflow, or GitHub Actions
-
----
-
-## 14.9 Data Quality Monitoring
-
-Data quality can be monitored through validation checks such as:
-
+* Number of products extracted
+* Number of failed URLs
 * Missing product name rate
-* Missing Stock Keeping Unit (SKU) rate
-* Missing image Uniform Resource Locator (URL) rate
-* Duplicate product Uniform Resource Locator (URL) count
+* Missing SKU rate
+* Missing price rate
+* Duplicate product URL count
+* Empty variant count
 * Invalid price format count
-* Empty product variant count
-* Failed extraction count
-* Category coverage by run
-* Change detection between runs
+* Average processing time per page
+* LLM token usage and cost
+
+These checks would help detect extraction issues and website layout changes.
 
 ---
 
-## 15. Why This Approach
+## Why This Approach
 
-This project separates navigation, extraction, storage, and export responsibilities.
+I used a hybrid approach instead of relying only on Artificial Intelligence (AI).
 
-The system does not use Artificial Intelligence (AI) for every step. Instead, it uses deterministic parsing where possible and applies Large Language Model (LLM) extraction where it provides practical value.
+Rule-based parsing is used where it is reliable, such as product URL discovery. The Large Language Model (LLM) is used for product detail extraction, where the page structure can be less consistent and the output needs to be normalized.
 
-This makes the system:
-
-* More reliable
-* More cost-efficient
-* Easier to debug
-* Easier to extend
-* More aligned with production engineering practices
-
-The MySQL queue design also makes the pipeline more production-minded because it supports resumability, deduplication, checkpointing, and future worker-based scaling.
+This keeps the system practical, easier to debug, and less expensive to run.
 
 ---
 
-## 16. Alignment with Strong Submission Criteria
-
-This Proof of Concept (POC) is designed to match the expected strong-submission criteria.
-
-* It crawls the two required Safco category pages and discovers product detail pages automatically.
-* It uses Playwright to handle modern and dynamic page rendering before extraction.
-* It stores normalized product data in MySQL and exports sample results to Comma-Separated Values (CSV) and JavaScript Object Notation (JSON).
-* It separates responsibilities across a Navigator Agent, an Extractor Agent, a database queue, and an export layer.
-* It uses Artificial Intelligence (AI) practically. Rule-based parsing is used for product link discovery when possible, while the Large Language Model (LLM) is used for structured extraction from product detail pages.
-* It includes production-hardening considerations such as rate limiting, retry handling, checkpointing, deduplication, idempotent writes, secrets management, and data quality monitoring.
-
----
-
-## 17. Example Run
-
-Example terminal output:
+## Example Run
 
 ```text
 [DB] MySQL tables initialized successfully.
 [Pipeline] System bootstrapped with seed categories.
 
 --- [Phase A] Discovering Product URLs from Categories ---
-[Pipeline] Processing category: https://www.safcodental.com/catalog/gloves
 [Pipeline] Queue product URL: https://www.safcodental.com/product/crave-trade
 [Pipeline] Queue product URL: https://www.safcodental.com/product/compac-nitrile-exam-gloves
 [Pipeline] Category completed: https://www.safcodental.com/catalog/gloves
@@ -665,17 +402,13 @@ POC Execution Finished! Processed 5 products into MySQL.
 
 ---
 
-## 18. Repository Submission Contents
+## Submission Contents
 
-The repository includes:
+This repository includes:
 
-```text
-Source code
-README.md
-requirements.txt
-.env.example
-.gitignore
-Sample output files
-```
-
-The project is designed as a working Proof of Concept (POC) that can be run locally and extended into a production-ready product scraping and catalog extraction system.
+* Source code
+* Setup and execution instructions
+* MySQL storage logic
+* Sample CSV output
+* Sample JSON output
+* Notes on limitations and production improvements
