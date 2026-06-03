@@ -8,10 +8,10 @@ The goal is to scrape product information from the Safco Dental Supply website, 
 
 The POC focuses on the two required categories:
 
-* Sutures & Surgical Products  
+* Sutures & Surgical Products
   https://www.safcodental.com/catalog/sutures-surgical-products
 
-* Dental Exam Gloves  
+* Dental Exam Gloves
   https://www.safcodental.com/catalog/gloves
 
 This is not intended to be a full production crawler yet. It is a small working prototype that proves the main workflow can run end to end.
@@ -114,11 +114,21 @@ This project separates responsibilities instead of using one monolithic script.
 
 ### Page Classifier
 
-The Page Classifier is a lightweight rule-based component. It checks the URL and page content to classify a page as `category`, `product`, or `unknown`. This helps the pipeline verify that the expected type of page is being processed.
+The Page Classifier is a lightweight rule-based component.
+
+It checks the URL and page content to classify a page as:
+
+* `category`
+* `product`
+* `unknown`
+
+This helps the pipeline verify that the expected type of page is being processed.
 
 ### Navigator Agent
 
-The Navigator Agent is responsible for finding product detail page URLs from category pages. It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The LLM can be used as a fallback when product links are not found with rules alone.
+The Navigator Agent is responsible for finding product detail page URLs from category pages.
+
+It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The LLM can be used as a fallback when product links are not found with rules alone.
 
 Responsibilities:
 
@@ -130,7 +140,14 @@ Responsibilities:
 
 ### Extractor Agent
 
-The Extractor Agent is responsible for extracting product data from product detail pages. It reads product page HTML and returns a validated Pydantic product object.
+The Extractor Agent is responsible for extracting product data from product detail pages.
+
+Responsibilities:
+
+* Read product page HTML
+* Extract structured product fields
+* Return a validated Pydantic product object
+* Support product variants when visible on the page
 
 Extracted fields include:
 
@@ -156,7 +173,9 @@ Current validation includes:
 
 ### Retry / Recovery Logic
 
-The scraper includes basic retry logic when fetching pages. If a fetch attempt fails, the system retries a limited number of times before marking the URL as failed in the queue. This allows the pipeline to continue processing other URLs instead of stopping completely.
+The scraper includes basic retry logic when fetching pages.
+
+If a fetch attempt fails, the system retries a limited number of times before marking the URL as failed in the queue. This allows the pipeline to continue processing other URLs instead of stopping completely.
 
 ---
 
@@ -314,7 +333,8 @@ Sample output is included under the `output/` folder:
 * `sample_products.csv`
 * `sample_products.json`
 
-The CSV file is useful for quick review in spreadsheet tools. The JSON file keeps nested data such as variants, image URLs, and specifications.
+The CSV file is useful for quick review in spreadsheet tools.
+The JSON file keeps nested data such as variants, image URLs, and specifications.
 
 Some fields may be empty if they are not publicly visible on the product page or cannot be confidently extracted.
 
