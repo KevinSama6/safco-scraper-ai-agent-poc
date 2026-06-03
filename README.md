@@ -8,10 +8,10 @@ The goal is to scrape product information from the Safco Dental Supply website, 
 
 The POC focuses on the two required categories:
 
-* Sutures & Surgical Products
+- Sutures & Surgical Products  
   https://www.safcodental.com/catalog/sutures-surgical-products
 
-* Dental Exam Gloves
+- Dental Exam Gloves  
   https://www.safcodental.com/catalog/gloves
 
 This is not intended to be a full production crawler yet. It is a small working prototype that proves the main workflow can run end to end.
@@ -20,19 +20,9 @@ This is not intended to be a full production crawler yet. It is a small working 
 
 ## What This Project Does
 
-The current prototype can:
+The current prototype starts from the two required category pages, fetches rendered page content using Playwright, classifies pages as category or product pages, discovers product detail URLs, and stores them in a MySQL queue.
 
-* Start from the two required category pages
-* Fetch rendered page content using Playwright
-* Classify pages as category, product, or unknown
-* Discover product detail page URLs
-* Store category and product URLs in a MySQL queue
-* Process pending product pages
-* Extract structured product data using an LLM
-* Validate the extracted structure with Pydantic
-* Clean obvious invalid SKU values
-* Save product records into MySQL
-* Export sample output to CSV and JSON
+After that, it processes pending product pages, extracts structured product data using an LLM, validates the extracted structure with Pydantic, cleans obvious invalid SKU values, saves product records into MySQL, and exports sample output to CSV and JSON.
 
 ---
 
@@ -56,15 +46,9 @@ safco_scraper_poc/
     └── sample_products.json
 ```
 
-Main files:
+The main workflow is controlled by `pipeline.py`. Page fetching and retry logic are handled in `scraper.py`. The agent logic is inside `agents.py`, including the Page Classifier, Navigator Agent, and Extractor Agent.
 
-* `pipeline.py`: controls the full scraping workflow
-* `scraper.py`: fetches rendered HTML using Playwright and includes retry logic
-* `agents.py`: contains the Page Classifier, Navigator Agent, and Extractor Agent
-* `validators.py`: cleans and validates extracted product data
-* `models.py`: defines the Pydantic product schema
-* `db.py`: handles MySQL tables, queue operations, and product storage
-* `export_sample.py`: exports product data from MySQL to CSV and JSON
+Product schemas are defined in `models.py`, validation and cleanup are handled in `validators.py`, and MySQL operations are managed in `db.py`. The `export_sample.py` script exports saved product data into CSV and JSON files.
 
 ---
 
@@ -110,72 +94,15 @@ The system uses a MySQL queue table to track each URL as `pending`, `completed`,
 
 ## Agentic Workflow
 
-This project separates responsibilities instead of using one monolithic script.
+This project separates the scraping workflow into several simple agent-like components instead of using one large script.
 
-### Page Classifier
+The Page Classifier checks the URL and page content to decide whether a page is a `category`, `product`, or `unknown` page. This helps the pipeline make sure the expected type of page is being processed.
 
-The Page Classifier is a lightweight rule-based component.
+The Navigator Agent is responsible for reading category page HTML and finding product detail page URLs. It uses rule-based HTML parsing first because this is faster, cheaper, and easier to debug. The LLM can be used as a fallback when product links are not found with rules alone.
 
-It checks the URL and page content to classify a page as:
+The Extractor Agent reads product detail page HTML and extracts structured product data, including product name, brand, category hierarchy, product URL, description, specifications, image URLs, alternative products, and visible product variants such as SKU, size, price, and availability.
 
-* `category`
-* `product`
-* `unknown`
-
-This helps the pipeline verify that the expected type of page is being processed.
-
-### Navigator Agent
-
-The Navigator Agent is responsible for finding product detail page URLs from category pages.
-
-It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The LLM can be used as a fallback when product links are not found with rules alone.
-
-Responsibilities:
-
-* Read category page HTML
-* Find product page links
-* Convert relative links into absolute URLs
-* Filter out non-product links
-* Return product URLs to the pipeline
-
-### Extractor Agent
-
-The Extractor Agent is responsible for extracting product data from product detail pages.
-
-Responsibilities:
-
-* Read product page HTML
-* Extract structured product fields
-* Return a validated Pydantic product object
-* Support product variants when visible on the page
-
-Extracted fields include:
-
-* Product name
-* Brand or manufacturer
-* Category hierarchy
-* Product URL
-* Description
-* Specifications
-* Image URLs
-* Alternative products
-* Variants, including SKU, size, price, and availability
-
-### Validator / Deduplicator
-
-The Validator / Deduplicator performs lightweight cleanup after extraction.
-
-Current validation includes:
-
-* Cleaning invalid SKU values such as `0`, `1`, empty strings, `null`, and `N/A`
-* Keeping uncertain or missing fields as `None` instead of forcing fake values
-* Using MySQL primary keys to prevent duplicate URLs and duplicate product records
-
-### Retry / Recovery Logic
-
-The scraper includes basic retry logic when fetching pages.
-
-If a fetch attempt fails, the system retries a limited number of times before marking the URL as failed in the queue. This allows the pipeline to continue processing other URLs instead of stopping completely.
+After extraction, the Validator / Deduplicator performs lightweight cleanup. For example, it removes invalid SKU values such as `0`, `1`, empty strings, `null`, and `N/A`. Missing or uncertain values are kept as `None` instead of being replaced with fake data. MySQL primary keys are also used to prevent duplicate URLs and duplicate product records.
 
 ---
 
@@ -291,7 +218,7 @@ Do not commit the `.env` file to GitHub.
 python pipeline.py
 ```
 
-The pipeline will initialize the database, insert the two seed categories, discover product URLs, extract product data, clean the result, and save products into MySQL.
+The pipeline initializes the database, inserts the two seed category URLs, discovers product URLs, extracts product data, cleans the result, and saves products into MySQL.
 
 ### 5. Export sample output
 
@@ -330,11 +257,10 @@ REQUEST_DELAY_SECONDS = 2
 
 Sample output is included under the `output/` folder:
 
-* `sample_products.csv`
-* `sample_products.json`
+- `sample_products.csv`
+- `sample_products.json`
 
-The CSV file is useful for quick review in spreadsheet tools.
-The JSON file keeps nested data such as variants, image URLs, and specifications.
+The CSV file is useful for quick review in spreadsheet tools. The JSON file keeps nested data such as variants, image URLs, and specifications.
 
 Some fields may be empty if they are not publicly visible on the product page or cannot be confidently extracted.
 
@@ -342,55 +268,25 @@ Some fields may be empty if they are not publicly visible on the product page or
 
 ## Current Limitations
 
-This is a POC, so there are some limitations:
+This is a POC, so it only processes a limited number of products by default. Pagination support can be expanded further, and some prices, availability values, or product details may not be publicly visible on every product page. Some SKU values may also require stronger rule-based validation in a production version.
 
-* It only processes a limited number of products by default.
-* Pagination support can be expanded further.
-* Some prices or availability values may not be publicly visible.
-* Some product pages may have fewer visible fields than others.
-* Some SKU values may require stronger rule-based validation in production.
-* The system starts from two predefined seed categories instead of crawling the whole site.
-* It does not yet include parallel workers.
-* It does not yet include a monitoring dashboard.
-* It does not yet include automated tests.
+The current version starts from two predefined seed categories instead of crawling the whole website. It also does not yet include parallel workers, a monitoring dashboard, or automated tests.
 
 ---
 
 ## Failure Handling
 
-The `urls_queue` table provides basic failure handling.
+The `urls_queue` table provides basic failure handling. Each URL has one of the following statuses: `pending`, `completed`, or `failed`.
 
-Each URL has one of the following statuses:
-
-* `pending`
-* `completed`
-* `failed`
-
-If a page fails, the pipeline marks it as `failed` and continues processing other URLs.
-
-Possible future improvements:
-
-* Retry count stored in the database
-* Failure reason column
-* Exponential backoff
-* Dead-letter queue
-* Alerting for repeated failures
+If a page fails, the pipeline marks it as `failed` and continues processing other URLs instead of stopping the whole run. In a production version, this could be improved with retry counts, failure reason tracking, exponential backoff, a dead-letter queue, and alerting for repeated failures.
 
 ---
 
 ## Scaling to Production
 
-To move this POC toward production, I would add:
+To move this POC toward production, I would expand pagination handling, add stronger rule-based validation for SKU, price, availability, and product variants, and store retry counters and failure reasons in the database.
 
-* Full pagination handling
-* More rule-based validation for SKU, price, availability, and product variants
-* Retry counters and failure reasons
-* Structured logging
-* Run IDs and processing metrics
-* Parallel workers that process pending product URLs from the queue
-* Docker deployment
-* Cloud scheduler or workflow orchestration
-* Managed secrets for API keys and database passwords
+I would also add structured logging, run IDs, processing metrics, Docker deployment, cloud scheduling, managed secrets, and parallel workers that process pending product URLs from the queue.
 
 The current MySQL queue design provides a basic path toward scaling because pending product URLs can be processed by one or more workers.
 
@@ -398,18 +294,7 @@ The current MySQL queue design provides a basic path toward scaling because pend
 
 ## Data Quality Monitoring
 
-For production, I would monitor:
-
-* Number of products extracted
-* Number of failed URLs
-* Missing product name rate
-* Missing SKU rate
-* Missing price rate
-* Duplicate product URL count
-* Empty variant count
-* Invalid price format count
-* Average processing time per page
-* LLM token usage and cost
+For production, I would monitor the number of products extracted, failed URLs, missing product names, missing SKU values, missing prices, duplicate product URLs, empty variants, invalid price formats, average processing time per page, and LLM token usage or cost.
 
 These checks would help detect extraction issues and website layout changes.
 
@@ -417,9 +302,7 @@ These checks would help detect extraction issues and website layout changes.
 
 ## Why This Approach
 
-I used a hybrid approach instead of relying only on AI.
-
-Rule-based parsing is used where it is reliable, such as product URL discovery and page classification. The LLM is used for product detail extraction, where the page structure can be less consistent and the output needs to be normalized.
+I used a hybrid approach instead of relying only on AI. Rule-based parsing is used where it is reliable, such as product URL discovery and page classification. The LLM is used for product detail extraction, where the page structure can be less consistent and the output needs to be normalized.
 
 This keeps the system practical, easier to debug, and less expensive to run.
 
@@ -449,12 +332,4 @@ POC Execution Finished! Processed 5 products into MySQL.
 
 ## Submission Contents
 
-This repository includes:
-
-* Source code
-* Setup and execution instructions
-* MySQL storage logic
-* Agentic workflow components
-* Sample CSV output
-* Sample JSON output
-* Notes on limitations and production improvements
+This repository includes the source code, setup instructions, MySQL storage logic, agentic workflow components, sample CSV output, sample JSON output, and notes on limitations and production improvements.
