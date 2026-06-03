@@ -27,14 +27,14 @@ def get_db_connection():
 
 
 def safe_parse_data(value):
-    """
-    Parse product data stored in MySQL.
+  
+    # Parse product data stored in MySQL.
 
-    Supports:
-    1. Standard JSON string
-    2. Python dict-style string, for example {'product_name': 'Alasta Pro'}
-    3. Already parsed dict
-    """
+    # Supports:
+    # 1. Standard JSON string
+    # 2. Python dict-style string, for example {'product_name': 'Alasta Pro'}
+    # 3. Already parsed dict
+  
     if value is None:
         return {}
 

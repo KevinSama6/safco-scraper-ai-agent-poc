@@ -22,16 +22,15 @@ DB_CONFIG = {
 
 
 def get_connection():
-    """
-    Create a MySQL connection with autocommit enabled.
-    """
+    
+    # Create a MySQL connection with autocommit enabled.
+   
     return pymysql.connect(**DB_CONFIG, autocommit=True)
 
 
 def init_db():
-    """
-    Initialize the MySQL database and required tables.
-    """
+    
+    # Initialize the MySQL database and required tables.
     # Connect without selecting a database first, so the database can be created if needed.
     temp_config = DB_CONFIG.copy()
     db_name = temp_config.pop("database")
@@ -86,11 +85,11 @@ def init_db():
 
 
 def insert_url(url, url_type):
-    """
-    Insert a URL into the queue.
 
-    INSERT IGNORE prevents duplicate URLs from being inserted.
-    """
+    # Insert a URL into the queue.
+
+    # INSERT IGNORE prevents duplicate URLs from being inserted.
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -107,11 +106,10 @@ def insert_url(url, url_type):
 
 
 def get_next_pending_url(url_type):
-    """
-    Fetch the next pending URL by URL type.
 
-    url_type can be 'category' or 'product'.
-    """
+    # Fetch the next pending URL by URL type.
+    # url_type can be 'category' or 'product'.
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -133,9 +131,9 @@ def get_next_pending_url(url_type):
 
 
 def update_url_status(url, status):
-    """
-    Update the processing status of a URL.
-    """
+    
+    # Update the processing status of a URL.
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -153,12 +151,11 @@ def update_url_status(url, status):
 
 
 def save_product(product: ProductModel):
-    """
-    Save extracted product data into MySQL.
-
-    ON DUPLICATE KEY UPDATE makes the write idempotent.
-    If the product URL already exists, the existing record will be updated.
-    """
+   
+    # Save extracted product data into MySQL.
+    # ON DUPLICATE KEY UPDATE makes the write idempotent.
+    # If the product URL already exists, the existing record will be updated.
+    
     conn = get_connection()
     cursor = conn.cursor()
 

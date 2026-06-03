@@ -33,10 +33,10 @@ class CategoryPageExtraction(BaseModel):
 
 
 def clean_html_for_llm(html_content: str) -> str:
-    """
-    Remove unnecessary script, style, and SVG content before sending HTML to the LLM.
-    This reduces token usage and improves extraction quality.
-    """
+ 
+    # Remove unnecessary script, style, and SVG content before sending HTML to the LLM.
+    # This reduces token usage and improves extraction quality.
+    
     html = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", html_content)
     html = re.sub(r"<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>", "", html)
     html = re.sub(r"<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>", "", html)
@@ -49,12 +49,11 @@ def clean_html_for_llm(html_content: str) -> str:
 # Page Classifier
 # ==========================================
 def classify_page_type(url: str, html_content: str) -> str:
-    """
-    Classify a page as category, product, or unknown.
-
-    This is a lightweight rule-based classifier.
-    It avoids unnecessary LLM calls for simple page type detection.
-    """
+  
+    # Classify a page as category, product, or unknown.
+    # This is a lightweight rule-based classifier.
+    # It avoids unnecessary LLM calls for simple page type detection.
+    
     lower_url = url.lower()
     lower_html = html_content.lower()
 
@@ -81,9 +80,9 @@ def classify_page_type(url: str, html_content: str) -> str:
 
 
 def is_likely_product_url(url: str) -> bool:
-    """
-    Determine whether a URL is likely to be a product detail page.
-    """
+   
+    # Determine whether a URL is likely to be a product detail page.
+    
     parsed = urlparse(url)
     path = parsed.path.lower()
 
@@ -120,9 +119,9 @@ def extract_product_links_rule_based(
     page_url: str,
     base_url: str = "https://www.safcodental.com",
 ) -> List[str]:
-    """
-    Extract product detail links from HTML using deterministic parsing.
-    """
+
+    # Extract product detail links from HTML using deterministic parsing.
+  
     soup = BeautifulSoup(html_content, "html.parser")
     links = set()
 
@@ -155,13 +154,13 @@ def run_navigator_agent(
     page_url: str,
     base_url: str = "https://www.safcodental.com",
 ) -> List[str]:
-    """
-    Discover product detail page URLs from a category page.
+  
+    # Discover product detail page URLs from a category page.
 
-    The Navigator Agent uses:
-    1. Rule-based parsing first.
-    2. LLM fallback only when rule-based parsing finds no product links.
-    """
+    # The Navigator Agent uses:
+    # 1. Rule-based parsing first.
+    # 2. LLM fallback only when rule-based parsing finds no product links.
+  
     rule_based_links = extract_product_links_rule_based(
         html_content=html_content,
         page_url=page_url,
@@ -222,9 +221,9 @@ HTML Content:
 # Extractor Agent
 # ==========================================
 def run_extractor_agent(html_content: str, product_url: str) -> ProductModel:
-    """
-    Extract structured product data from a product detail page.
-    """
+  
+    # Extract structured product data from a product detail page.
+   
     cleaned_html = clean_html_for_llm(html_content)
 
     prompt = f"""
