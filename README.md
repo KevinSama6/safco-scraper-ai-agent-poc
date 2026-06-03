@@ -2,9 +2,9 @@
 
 ## Overview
 
-This project is a working Proof of Concept (POC) for an Artificial Intelligence (AI) assisted product scraping system.
+This project is a working POC for an AI-assisted product scraping system.
 
-The goal is to scrape product information from the Safco Dental Supply website, extract structured product catalog data, and store/export the result in a usable format.
+The goal is to scrape product information from the Safco Dental Supply website, extract structured product catalog data, store the result in MySQL, and export sample data to CSV and JSON.
 
 The POC focuses on the two required categories:
 
@@ -14,7 +14,7 @@ The POC focuses on the two required categories:
 * Dental Exam Gloves
   https://www.safcodental.com/catalog/gloves
 
-This project is not meant to be a complete production crawler. It is a small working prototype that shows the main workflow can run end to end.
+This is not intended to be a full production crawler yet. It is a small working prototype that proves the main workflow can run end to end.
 
 ---
 
@@ -24,13 +24,15 @@ The current prototype can:
 
 * Start from the two required category pages
 * Fetch rendered page content using Playwright
-* Discover product detail page Uniform Resource Locators (URLs)
+* Classify pages as category, product, or unknown
+* Discover product detail page URLs
 * Store category and product URLs in a MySQL queue
 * Process pending product pages
-* Extract structured product data with a Large Language Model (LLM)
+* Extract structured product data using an LLM
 * Validate the extracted structure with Pydantic
+* Clean obvious invalid SKU values
 * Save product records into MySQL
-* Export sample output to Comma-Separated Values (CSV) and JavaScript Object Notation (JSON)
+* Export sample output to CSV and JSON
 
 ---
 
@@ -44,6 +46,7 @@ safco_scraper_poc/
 ├── models.py
 ├── pipeline.py
 ├── scraper.py
+├── validators.py
 ├── requirements.txt
 ├── README.md
 ├── .env.example
@@ -56,8 +59,9 @@ safco_scraper_poc/
 Main files:
 
 * `pipeline.py`: controls the full scraping workflow
-* `scraper.py`: fetches rendered HyperText Markup Language (HTML) using Playwright
-* `agents.py`: contains the Navigator Agent and Extractor Agent
+* `scraper.py`: fetches rendered HTML using Playwright and includes retry logic
+* `agents.py`: contains the Page Classifier, Navigator Agent, and Extractor Agent
+* `validators.py`: cleans and validates extracted product data
 * `models.py`: defines the Pydantic product schema
 * `db.py`: handles MySQL tables, queue operations, and product storage
 * `export_sample.py`: exports product data from MySQL to CSV and JSON
@@ -73,6 +77,12 @@ Seed Category URLs
 MySQL URL Queue
         |
         v
+Fetch Rendered HTML
+        |
+        v
+Page Classifier
+        |
+        v
 Navigator Agent
         |
         v
@@ -85,7 +95,7 @@ MySQL URL Queue
 Extractor Agent
         |
         v
-Pydantic Product Model
+Validator / Deduplicator
         |
         v
 MySQL Products Table
@@ -94,17 +104,31 @@ MySQL Products Table
 CSV / JSON Export
 ```
 
-The workflow uses a MySQL queue table to track each URL as `pending`, `completed`, or `failed`. This allows the prototype to resume work and avoid processing the same URL multiple times.
+The system uses a MySQL queue table to track each URL as `pending`, `completed`, or `failed`. This gives the POC basic checkpointing, deduplication, and resumability.
 
 ---
 
-## Agent Responsibilities
+## Agentic Workflow
+
+This project separates responsibilities instead of using one monolithic script.
+
+### Page Classifier
+
+The Page Classifier is a lightweight rule-based component.
+
+It checks the URL and page content to classify a page as:
+
+* `category`
+* `product`
+* `unknown`
+
+This helps the pipeline verify that the expected type of page is being processed.
 
 ### Navigator Agent
 
 The Navigator Agent is responsible for finding product detail page URLs from category pages.
 
-It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The Large Language Model (LLM) can be used as a fallback when the page structure is harder to parse.
+It uses rule-based HTML parsing first because this is faster, cheaper, and more predictable. The LLM can be used as a fallback when product links are not found with rules alone.
 
 Responsibilities:
 
@@ -121,11 +145,11 @@ The Extractor Agent is responsible for extracting product data from product deta
 Responsibilities:
 
 * Read product page HTML
-* Extract structured fields based on the Pydantic schema
-* Return a validated product object
+* Extract structured product fields
+* Return a validated Pydantic product object
 * Support product variants when visible on the page
 
-Fields extracted include:
+Extracted fields include:
 
 * Product name
 * Brand or manufacturer
@@ -135,7 +159,23 @@ Fields extracted include:
 * Specifications
 * Image URLs
 * Alternative products
-* Variants, including Stock Keeping Unit (SKU), size, price, and availability
+* Variants, including SKU, size, price, and availability
+
+### Validator / Deduplicator
+
+The Validator / Deduplicator performs lightweight cleanup after extraction.
+
+Current validation includes:
+
+* Cleaning invalid SKU values such as `0`, `1`, empty strings, `null`, and `N/A`
+* Keeping uncertain or missing fields as `None` instead of forcing fake values
+* Using MySQL primary keys to prevent duplicate URLs and duplicate product records
+
+### Retry / Recovery Logic
+
+The scraper includes basic retry logic when fetching pages.
+
+If a fetch attempt fails, the system retries a limited number of times before marking the URL as failed in the queue. This allows the pipeline to continue processing other URLs instead of stopping completely.
 
 ---
 
@@ -166,7 +206,7 @@ class ProductVariant(BaseModel):
     availability: Optional[str]
 ```
 
-Stock Keeping Unit (SKU) means the item code or product variant code. In the POC, obvious invalid SKU values such as `0`, `1`, empty values, `null`, and `N/A` are filtered during export.
+SKU means the item code or product variant code. In this POC, SKU is only kept when it appears to be a valid visible product code. Obvious invalid values are removed during validation and export.
 
 ---
 
@@ -251,7 +291,7 @@ Do not commit the `.env` file to GitHub.
 python pipeline.py
 ```
 
-The pipeline will initialize the database, insert the two seed categories, discover product URLs, extract product data, and save results into MySQL.
+The pipeline will initialize the database, insert the two seed categories, discover product URLs, extract product data, clean the result, and save products into MySQL.
 
 ### 5. Export sample output
 
@@ -270,13 +310,13 @@ output/sample_products.json
 
 ## Runtime Control
 
-The POC limits the number of extracted product pages to keep runtime and API cost controlled.
+The POC limits the number of extracted product pages to control runtime and API cost.
 
 ```python
 MAX_POC_PRODUCTS = 5
 ```
 
-This value can be increased to process more product pages.
+This value can be increased to process more products.
 
 The pipeline also includes a small delay between requests:
 
@@ -296,6 +336,8 @@ Sample output is included under the `output/` folder:
 The CSV file is useful for quick review in spreadsheet tools.
 The JSON file keeps nested data such as variants, image URLs, and specifications.
 
+Some fields may be empty if they are not publicly visible on the product page or cannot be confidently extracted.
+
 ---
 
 ## Current Limitations
@@ -305,7 +347,8 @@ This is a POC, so there are some limitations:
 * It only processes a limited number of products by default.
 * Pagination support can be expanded further.
 * Some prices or availability values may not be publicly visible.
-* Some SKU values may require stronger validation.
+* Some product pages may have fewer visible fields than others.
+* Some SKU values may require stronger rule-based validation in production.
 * The system starts from two predefined seed categories instead of crawling the whole site.
 * It does not yet include parallel workers.
 * It does not yet include a monitoring dashboard.
@@ -317,17 +360,17 @@ This is a POC, so there are some limitations:
 
 The `urls_queue` table provides basic failure handling.
 
-Each URL has a status:
+Each URL has one of the following statuses:
 
 * `pending`
 * `completed`
 * `failed`
 
-If a page fails, the pipeline marks it as `failed` and continues processing other URLs. This makes it easier to inspect or retry failed pages later.
+If a page fails, the pipeline marks it as `failed` and continues processing other URLs.
 
 Possible future improvements:
 
-* Retry count
+* Retry count stored in the database
 * Failure reason column
 * Exponential backoff
 * Dead-letter queue
@@ -341,7 +384,7 @@ To move this POC toward production, I would add:
 
 * Full pagination handling
 * More rule-based validation for SKU, price, availability, and product variants
-* Retry logic with exponential backoff
+* Retry counters and failure reasons
 * Structured logging
 * Run IDs and processing metrics
 * Parallel workers that process pending product URLs from the queue
@@ -349,7 +392,7 @@ To move this POC toward production, I would add:
 * Cloud scheduler or workflow orchestration
 * Managed secrets for API keys and database passwords
 
-The current MySQL queue design already supports a basic path toward scaling because pending product URLs can be processed by one or more workers.
+The current MySQL queue design provides a basic path toward scaling because pending product URLs can be processed by one or more workers.
 
 ---
 
@@ -374,9 +417,9 @@ These checks would help detect extraction issues and website layout changes.
 
 ## Why This Approach
 
-I used a hybrid approach instead of relying only on Artificial Intelligence (AI).
+I used a hybrid approach instead of relying only on AI.
 
-Rule-based parsing is used where it is reliable, such as product URL discovery. The Large Language Model (LLM) is used for product detail extraction, where the page structure can be less consistent and the output needs to be normalized.
+Rule-based parsing is used where it is reliable, such as product URL discovery and page classification. The LLM is used for product detail extraction, where the page structure can be less consistent and the output needs to be normalized.
 
 This keeps the system practical, easier to debug, and less expensive to run.
 
@@ -389,12 +432,14 @@ This keeps the system practical, easier to debug, and less expensive to run.
 [Pipeline] System bootstrapped with seed categories.
 
 --- [Phase A] Discovering Product URLs from Categories ---
+[Page Classifier] Page type: category
 [Pipeline] Queue product URL: https://www.safcodental.com/product/crave-trade
 [Pipeline] Queue product URL: https://www.safcodental.com/product/compac-nitrile-exam-gloves
 [Pipeline] Category completed: https://www.safcodental.com/catalog/gloves
 
 --- [Phase B] Extracting Product Data ---
 [Pipeline] Processing product: https://www.safcodental.com/product/crave-trade
+[Page Classifier] Page type: product
 [Success] Extracted and saved: Crave
 
 POC Execution Finished! Processed 5 products into MySQL.
@@ -409,6 +454,7 @@ This repository includes:
 * Source code
 * Setup and execution instructions
 * MySQL storage logic
+* Agentic workflow components
 * Sample CSV output
 * Sample JSON output
 * Notes on limitations and production improvements
