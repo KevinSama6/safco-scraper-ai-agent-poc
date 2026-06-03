@@ -378,31 +378,21 @@ Possible future improvements:
 
 ---
 
-## Production-Minded Design
+## Scaling to Production
 
-This POC includes several basic production-minded components, but it is not a fully production-ready crawler.
+To move this POC toward production, I would add:
 
-Implemented in this POC:
+* Full pagination handling
+* More rule-based validation for SKU, price, availability, and product variants
+* Retry counters and failure reasons
+* Structured logging
+* Run IDs and processing metrics
+* Parallel workers that process pending product URLs from the queue
+* Docker deployment
+* Cloud scheduler or workflow orchestration
+* Managed secrets for API keys and database passwords
 
-- Basic rate limiting through request delay
-- Basic retry logic for page fetching
-- Error handling with try/except blocks
-- URL status tracking with pending, completed, and failed
-- Resumability through the MySQL urls_queue table
-- Deduplication through primary keys and INSERT IGNORE
-- Idempotent product writes through ON DUPLICATE KEY UPDATE
-- Environment-based secrets through .env
-- Sample export to CSV and JSON
-
-Planned for production:
-
-- Structured logging instead of print logs
-- Full config-driven execution for seed URLs, product limits, delays, and model names
-- Full pagination crawling
-- Retry counters and failure reason tracking in MySQL
-- Monitoring dashboard
-- Docker deployment
-- Cloud scheduler or workflow orchestration
+The current MySQL queue design provides a basic path toward scaling because pending product URLs can be processed by one or more workers.
 
 ---
 
