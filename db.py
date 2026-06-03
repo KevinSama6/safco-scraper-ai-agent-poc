@@ -4,7 +4,6 @@ import json
 from dotenv import load_dotenv
 from models import ProductModel
 
-
 load_dotenv()
 
 

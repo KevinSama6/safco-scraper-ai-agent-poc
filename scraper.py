@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 
 def fetch_page_content(url: str) -> str:
     
-    # Start a headless browser, visit the URL, and return the rendered page HTML.
+    #Start a headless browser, visit the URL, and return the rendered page HTML.
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)

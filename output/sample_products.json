@@ -1,5 +1,203 @@
 [
   {
+    "product_name": "Crave",
+    "brand": "Safco",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/crave-trade",
+    "description": "Safco Dental Supply sells Dental Crave and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "price": "24.49",
+      "currency": "USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcca_2.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "CR3555",
+        "size_or_color": "Large",
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3556",
+        "size_or_color": "Medium",
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3557",
+        "size_or_color": "Small",
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3558",
+        "size_or_color": "X-Small",
+        "price": 24.49,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 23:01:49"
+  },
+  {
+    "product_name": "Compac Nitrile Exam Gloves",
+    "brand": "Compac",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/compac-nitrile",
+    "description": "Compac nitrile exam gloves feature By-the-Cuff dispensing, compact storage, and reduced cross-contamination for efficient operatory workflows.",
+    "specifications": {
+      "Material": "Nitrile",
+      "Color": "Black",
+      "Package Count": "100 per box"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/c/r/cranberry-compac-nitrile-front-facing-100-box_1.jpg?optimize=medium&fit=bounds&height=265&width=265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "CRANB-COMP-100",
+        "size_or_color": "Black 100 Count",
+        "price": 8.49,
+        "availability": "In Stock"
+      },
+      {
+        "sku": "CRANB-COMP-50",
+        "size_or_color": "Black 50 Count",
+        "price": 4.99,
+        "availability": "Out of Stock"
+      },
+      {
+        "sku": "CRANB-COMP-25",
+        "size_or_color": "Black 25 Count",
+        "price": 2.49,
+        "availability": "In Stock"
+      }
+    ],
+    "updated_at": "2026-06-02 23:01:29"
+  },
+  {
+    "product_name": "Clearance item",
+    "brand": null,
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Clearance"
+    ],
+    "product_url": "https://www.safcodental.com/product/clearance-item",
+    "description": "Safco Dental Supply sells Dental Clearance item and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/c/l/clearance-items.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": null,
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In Stock"
+      }
+    ],
+    "updated_at": "2026-06-02 23:01:01"
+  },
+  {
+    "product_name": "BeeSure SuperSlim Nitrile",
+    "brand": "BeeSure",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/beesure-reg-superslim-trade-nitrile",
+    "description": "Safco Dental Supply sells Dental BeeSure SuperSlim Nitrile and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "color": "Various",
+      "size": "Available in multiple sizes"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcbo.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "BE1145",
+        "size_or_color": "Small",
+        "price": 24.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "BE1146",
+        "size_or_color": "Medium",
+        "price": 24.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "BE1147",
+        "size_or_color": "Large",
+        "price": 24.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "BE1148",
+        "size_or_color": "Extra Large",
+        "price": 24.99,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 23:00:41"
+  },
+  {
+    "product_name": "Aurelia Vibrant",
+    "brand": "Aurelia",
+    "category_hierarchy": [
+      "Dental Supplies"
+    ],
+    "product_url": "https://www.safcodental.com/product/aurelia-reg-vibrant-trade",
+    "description": "Safco Dental Supply sells Dental Aurelia Vibrant and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "price": "7.99",
+      "currency": "USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drbas.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "98225",
+        "size_or_color": "Medium",
+        "price": 7.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "98226",
+        "size_or_color": "Large",
+        "price": 7.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "98227",
+        "size_or_color": "X-Large",
+        "price": 7.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "98228",
+        "size_or_color": "Small",
+        "price": 7.99,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 23:00:17"
+  },
+  {
     "product_name": "Aurelia® Amazing® Powder Free Nitrile Dental Exam Gloves",
     "brand": null,
     "category_hierarchy": [

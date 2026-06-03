@@ -7,7 +7,7 @@ from pathlib import Path
 import mysql.connector
 from dotenv import load_dotenv
 
-
+ 
 load_dotenv()
 
 
