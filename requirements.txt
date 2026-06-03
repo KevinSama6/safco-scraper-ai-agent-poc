@@ -1,0 +1,9 @@
+openai
+instructor
+pydantic
+beautifulsoup4
+playwright
+mysql-connector-python
+python-dotenv
+pandas
+openpyxl

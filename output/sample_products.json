@@ -1,0 +1,520 @@
+[
+  {
+    "product_name": "Crave",
+    "brand": "Safco Dental Supply",
+    "category_hierarchy": [
+      "Dental Supplies"
+    ],
+    "product_url": "https://www.safcodental.com/product/crave-trade",
+    "description": "Safco Dental Supply sells Dental Crave and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcca_2.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "CR3555",
+        "size_or_color": null,
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3556",
+        "size_or_color": null,
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3557",
+        "size_or_color": null,
+        "price": 24.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "CR3558",
+        "size_or_color": null,
+        "price": 24.49,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:11:47"
+  },
+  {
+    "product_name": "Compac Nitrile Exam Gloves",
+    "brand": "By The Cuff",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Disposables",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/compac-nitrile",
+    "description": "Compac nitrile exam gloves feature By-the-Cuff dispensing, compact storage, and reduced cross-contamination for efficient operatory workflows.",
+    "specifications": {
+      "price": "8.49",
+      "currency": "USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/c/r/cranberry-compac-nitrile-front-facing-100-box_1.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "0",
+        "size_or_color": null,
+        "price": 8.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "1",
+        "size_or_color": null,
+        "price": 8.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "2",
+        "size_or_color": null,
+        "price": 8.49,
+        "availability": "in stock"
+      },
+      {
+        "sku": "3",
+        "size_or_color": null,
+        "price": 8.49,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:11:27"
+  },
+  {
+    "product_name": "Clearance item",
+    "brand": null,
+    "category_hierarchy": [],
+    "product_url": "https://www.safcodental.com/product/clearance-item",
+    "description": "Safco Dental Supply sells Dental Clearance item and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/c/l/clearance-items.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "1431",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "1432",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "LED-P",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "SF-HB21K",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "691258BU",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "US100R115T",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "UC300B115",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "90734",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "24-5902800",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "24-5361257",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "D660-B",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "90741L01",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "2340M",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "CR1079",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "U-5LH",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "42-553",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "7500080-S7S",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "7800080",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "Y1001036",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "31",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "F60211",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      },
+      {
+        "sku": "NXT-HG5-001",
+        "size_or_color": null,
+        "price": 87.0,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:11:12"
+  },
+  {
+    "product_name": "BeeSure SuperSlim Nitrile",
+    "brand": "BeeSure",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/beesure-reg-superslim-trade-nitrile",
+    "description": "Safco Dental Supply sells Dental BeeSure SuperSlim Nitrile and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "product:price:amount": "24.99",
+      "product:price:currency": "USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcbo.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "BE1145",
+        "size_or_color": "Small",
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "BE1146",
+        "size_or_color": "Medium",
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "BE1147",
+        "size_or_color": "Large",
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "BE1148",
+        "size_or_color": "X-Large",
+        "price": 24.99,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:10:53"
+  },
+  {
+    "product_name": "Aurelia Vibrant",
+    "brand": "Aurelia",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/aurelia-reg-vibrant-trade",
+    "description": "Safco Dental Supply sells Dental Aurelia Vibrant and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drbas.jpg?optimize=medium&fit=bounds&height=265&width=265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "98225",
+        "size_or_color": "Small",
+        "price": 7.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "98226",
+        "size_or_color": "Medium",
+        "price": 7.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "98227",
+        "size_or_color": "Large",
+        "price": 7.99,
+        "availability": "in stock"
+      },
+      {
+        "sku": "98228",
+        "size_or_color": "X-Large",
+        "price": 7.99,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:10:31"
+  },
+  {
+    "product_name": "Aurelia® Amazing® Powder Free Nitrile Dental Exam Gloves",
+    "brand": "Aurelia",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/aurelia-reg-amazing-reg",
+    "description": "Safco Dental Supply sells Dental Aurelia Amazing and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "price": 20.99,
+      "currency": "USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcbm.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "92885",
+        "size_or_color": "M",
+        "price": 20.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "92886",
+        "size_or_color": "L",
+        "price": 20.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "92887",
+        "size_or_color": "XL",
+        "price": 20.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "92888",
+        "size_or_color": "XXL",
+        "price": 20.99,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:10:07"
+  },
+  {
+    "product_name": "Aquasoft* Powder Free Nitrile Dental Exam Gloves",
+    "brand": "Safco Dental Supply",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/aquasoft",
+    "description": "Safco Dental Supply sells Dental Aquasoft and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": {
+      "price": "31.49 USD"
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcbt.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "PPE25",
+        "size_or_color": "Standard",
+        "price": 31.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "43932",
+        "size_or_color": "Small",
+        "price": 31.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "43933",
+        "size_or_color": "Medium",
+        "price": 31.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "43934",
+        "size_or_color": "Large",
+        "price": 31.49,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:09:45"
+  },
+  {
+    "product_name": "Aqua Source",
+    "brand": "Safco Dental Supply",
+    "category_hierarchy": [
+      "Dental Supplies"
+    ],
+    "product_url": "https://www.safcodental.com/product/aqua-source-reg",
+    "description": "Safco Dental Supply sells Dental Aqua Source and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcbl_2.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "1",
+        "size_or_color": null,
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "2",
+        "size_or_color": null,
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "3",
+        "size_or_color": null,
+        "price": 24.99,
+        "availability": "In stock"
+      },
+      {
+        "sku": "4",
+        "size_or_color": null,
+        "price": 24.99,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:09:24"
+  },
+  {
+    "product_name": "Alasta",
+    "brand": null,
+    "category_hierarchy": [],
+    "product_url": "https://www.safcodental.com/product/alasta-sup-reg-sup",
+    "description": "Safco Dental Supply sells Dental Alasta and other brand name dental supplies and products at discount prices. We offer free shipping and the highest quality service.",
+    "specifications": null,
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcan.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "PPE25",
+        "size_or_color": null,
+        "price": 13.49,
+        "availability": "in stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:09:00"
+  },
+  {
+    "product_name": "Alasta Pro",
+    "brand": "Safco Dental",
+    "category_hierarchy": [
+      "Dental Supplies",
+      "Dental Exam Gloves"
+    ],
+    "product_url": "https://www.safcodental.com/product/alasta-pro",
+    "description": "Make glove changes faster and easier with Alasta® PRO nitrile dental exam gloves, featuring innovative Glide Assist™ technology that helps you slide into gloves effortlessly — even with damp hands. Designed for dental professionals, the Soft Fit™ formulation provides a comfortable, form-fitting feel that enhances dexterity during procedures. The professional medical blue color offers a clean, clinical look that complements any operatory setting. Alasta® PRO gloves are fentanyl-tested and chemo-approved, ensuring trusted protection for use in high-risk or clinical dental environments. Each box contains 200 premium nitrile gloves, offering exceptional value and efficiency for busy dental practices.",
+    "specifications": {
+      "price": "28.49",
+      "currency": "USD",
+      "quantity_per_box": 200
+    },
+    "image_urls": [
+      "https://www.safcodental.com/media/catalog/product/d/r/drcdk.jpg?optimize=medium&fit=bounds&height=265&width=265&canvas=265:265"
+    ],
+    "alternative_products": [],
+    "variants": [
+      {
+        "sku": "0",
+        "size_or_color": "Large",
+        "price": 28.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "1",
+        "size_or_color": "Medium",
+        "price": 28.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "2",
+        "size_or_color": "Small",
+        "price": 28.49,
+        "availability": "In stock"
+      },
+      {
+        "sku": "3",
+        "size_or_color": "X-Large",
+        "price": 28.49,
+        "availability": "In stock"
+      }
+    ],
+    "updated_at": "2026-06-02 19:08:40"
+  }
+]
