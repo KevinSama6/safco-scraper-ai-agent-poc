@@ -5,3 +5,10 @@ venv/
 .venv/
 output/~$*
 .DS_Store
+.vscode/
+test_mysql.py
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
