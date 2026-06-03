@@ -1,14 +1,15 @@
 import os
 import re
 from urllib.parse import urljoin, urlparse
+from typing import List
 
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from openai import OpenAI
 import instructor
-from models import ProductModel
-from typing import List
 from pydantic import BaseModel, Field
+
+from models import ProductModel
 
 
 load_dotenv()
@@ -32,25 +33,61 @@ class CategoryPageExtraction(BaseModel):
 
 
 def clean_html_for_llm(html_content: str) -> str:
+    """
+    Remove unnecessary script, style, and SVG content before sending HTML to the LLM.
+    This reduces token usage and improves extraction quality.
+    """
     html = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", html_content)
     html = re.sub(r"<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>", "", html)
     html = re.sub(r"<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>", "", html)
     html = re.sub(r"\s+", " ", html)
+
     return html[:45000]
+
+
+# ==========================================
+# Page Classifier
+# ==========================================
+def classify_page_type(url: str, html_content: str) -> str:
+    """
+    Classify a page as category, product, or unknown.
+
+    This is a lightweight rule-based classifier.
+    It avoids unnecessary LLM calls for simple page type detection.
+    """
+    lower_url = url.lower()
+    lower_html = html_content.lower()
+
+    if "/catalog/" in lower_url:
+        return "category"
+
+    if "/product/" in lower_url:
+        return "product"
+
+    product_signals = [
+        "add to cart",
+        "item #",
+        "item number",
+        "sku",
+        "product code",
+        "availability",
+        "price",
+    ]
+
+    if any(signal in lower_html for signal in product_signals):
+        return "product"
+
+    return "unknown"
 
 
 def is_likely_product_url(url: str) -> bool:
     """
-    Safco product URLs usually contain catalog item/detail style paths.
-    This function is intentionally flexible for POC crawling.
+    Determine whether a URL is likely to be a product detail page.
     """
     parsed = urlparse(url)
     path = parsed.path.lower()
 
     bad_patterns = [
-        "/catalog/gloves",
-        "/catalog/sutures-surgical-products",
-        "/catalog",
         "/cart",
         "/login",
         "/account",
@@ -58,17 +95,19 @@ def is_likely_product_url(url: str) -> bool:
         "/contact",
         "/about",
         ".jpg",
+        ".jpeg",
         ".png",
+        ".gif",
+        ".webp",
         ".pdf",
     ]
 
-    if any(bad in path for bad in bad_patterns):
+    if any(pattern in path for pattern in bad_patterns):
         return False
 
     product_indicators = [
-        "/products/",
         "/product/",
-        "/catalog/",
+        "/products/",
         "/item/",
         "/p/",
     ]
@@ -82,8 +121,7 @@ def extract_product_links_rule_based(
     base_url: str = "https://www.safcodental.com",
 ) -> List[str]:
     """
-    Rule-based link discovery.
-    This should be the primary navigator because it is cheaper and more deterministic.
+    Extract product detail links from HTML using deterministic parsing.
     """
     soup = BeautifulSoup(html_content, "html.parser")
     links = set()
@@ -95,6 +133,7 @@ def extract_product_links_rule_based(
             continue
 
         absolute_url = urljoin(base_url, href)
+        absolute_url = absolute_url.split("#")[0]
 
         if "safcodental.com" not in absolute_url:
             continue
@@ -103,13 +142,13 @@ def extract_product_links_rule_based(
             continue
 
         if is_likely_product_url(absolute_url):
-            links.add(absolute_url.split("#")[0])
+            links.add(absolute_url)
 
     return sorted(links)
 
 
 # ==========================================
-# Agent 1: Navigator Agent
+# Navigator Agent
 # ==========================================
 def run_navigator_agent(
     html_content: str,
@@ -117,11 +156,12 @@ def run_navigator_agent(
     base_url: str = "https://www.safcodental.com",
 ) -> List[str]:
     """
-    Hybrid navigator:
-    1. First use deterministic HTML parsing.
-    2. If rule-based extraction fails, use LLM as fallback.
-    """
+    Discover product detail page URLs from a category page.
 
+    The Navigator Agent uses:
+    1. Rule-based parsing first.
+    2. LLM fallback only when rule-based parsing finds no product links.
+    """
     rule_based_links = extract_product_links_rule_based(
         html_content=html_content,
         page_url=page_url,
@@ -129,6 +169,7 @@ def run_navigator_agent(
     )
 
     print(f"[Navigator] Rule-based product links found: {len(rule_based_links)}")
+
     for link in rule_based_links[:10]:
         print(f"  - {link}")
 
@@ -140,7 +181,7 @@ def run_navigator_agent(
     prompt = f"""
 You are a Navigator Agent for an e-commerce scraper.
 
-Analyze the HTML content of this category/listing page and extract all product detail links.
+Analyze the HTML content of this category or listing page and extract all product detail links.
 
 Rules:
 - Only return URLs for specific product detail pages.
@@ -166,6 +207,7 @@ HTML Content:
         llm_links = [url for url in llm_links if is_likely_product_url(url)]
 
         print(f"[Navigator] LLM fallback product links found: {len(llm_links)}")
+
         for link in llm_links[:10]:
             print(f"  - {link}")
 
@@ -177,9 +219,12 @@ HTML Content:
 
 
 # ==========================================
-# Agent 2: Extractor Agent
+# Extractor Agent
 # ==========================================
 def run_extractor_agent(html_content: str, product_url: str) -> ProductModel:
+    """
+    Extract structured product data from a product detail page.
+    """
     cleaned_html = clean_html_for_llm(html_content)
 
     prompt = f"""
@@ -194,13 +239,25 @@ Extract as many fields as possible:
 - product name
 - brand / manufacturer
 - category hierarchy
+- product URL
 - description
-- specifications
+- specifications / attributes
 - image URLs
 - alternative products
-- variants including SKU, size/pack, price, and availability
+- product variants
 
-Important:
+For variants, extract:
+- Stock Keeping Unit (SKU), item number, item code, product code, or catalog number if clearly visible
+- size, color, pack, or unit
+- price if publicly visible
+- availability if publicly visible
+
+Important SKU rules:
+- Only extract SKU if it is clearly shown as SKU, item number, item code, product code, or catalog number.
+- Do not use option indexes, product IDs, hidden form values, or values like 0 or 1 as SKU.
+- If SKU is not visible, return null.
+
+General rules:
 - If a field is not visible, return null or an empty list.
 - Do not invent missing information.
 - Keep product_url exactly as provided.

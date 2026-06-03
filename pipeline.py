@@ -7,8 +7,13 @@ from db import (
     update_url_status,
     save_product,
 )
-from scraper import fetch_page_content
-from agents import run_navigator_agent, run_extractor_agent
+from scraper import fetch_page_with_retry
+from agents import (
+    classify_page_type,
+    run_navigator_agent,
+    run_extractor_agent,
+)
+from validators import validate_and_clean_product
 
 
 SEED_CATEGORIES = [
@@ -16,18 +21,14 @@ SEED_CATEGORIES = [
     "https://www.safcodental.com/catalog/gloves",
 ]
 
-MAX_POC_PRODUCTS = 10
+MAX_POC_PRODUCTS = 5
 REQUEST_DELAY_SECONDS = 2
 
 
 def bootstrap_system() -> None:
-    """
-    Initialize database and insert seed category URLs.
-
-    Important:
-    insert_url should ideally use INSERT IGNORE / ON DUPLICATE KEY logic,
-    so running the pipeline multiple times will not create duplicate URLs.
-    """
+   
+    # Initialize the database and insert seed category URLs.
+    
     init_db()
 
     for url in SEED_CATEGORIES:
@@ -37,11 +38,11 @@ def bootstrap_system() -> None:
 
 
 def discover_product_urls_from_categories() -> None:
-    """
-    Phase A:
-    Process pending category URLs, extract product detail URLs,
-    and insert discovered product URLs into urls_queue as url_type='product'.
-    """
+    
+    # Phase A:
+    # Process pending category URLs, extract product detail URLs,
+    # and insert discovered product URLs into urls_queue as product tasks.
+    
     print("\n--- [Phase A] Discovering Product URLs from Categories ---")
 
     while True:
@@ -54,7 +55,13 @@ def discover_product_urls_from_categories() -> None:
         print(f"\n[Pipeline] Processing category: {cat_url}")
 
         try:
-            html = fetch_page_content(cat_url)
+            html = fetch_page_with_retry(cat_url)
+
+            page_type = classify_page_type(cat_url, html)
+            print(f"[Page Classifier] Page type: {page_type}")
+
+            if page_type != "category":
+                print(f"[Warning] Expected category page but got: {page_type}")
 
             product_links = run_navigator_agent(
                 html_content=html,
@@ -81,11 +88,11 @@ def discover_product_urls_from_categories() -> None:
 
 
 def extract_products_from_queue(max_products: int = MAX_POC_PRODUCTS) -> int:
-    """
-    Phase B:
-    Process pending product URLs, extract structured product data,
-    and save results into the products table.
-    """
+  
+    # Phase B:
+    # Process pending product URLs, extract structured product data,
+    # validate/clean the result, and save it into MySQL.
+    
     print("\n--- [Phase B] Extracting Product Data ---")
 
     products_processed = 0
@@ -100,12 +107,20 @@ def extract_products_from_queue(max_products: int = MAX_POC_PRODUCTS) -> int:
         print(f"\n[Pipeline] Processing product: {prod_url}")
 
         try:
-            html = fetch_page_content(prod_url)
+            html = fetch_page_with_retry(prod_url)
+
+            page_type = classify_page_type(prod_url, html)
+            print(f"[Page Classifier] Page type: {page_type}")
+
+            if page_type != "product":
+                print(f"[Warning] Expected product page but got: {page_type}")
 
             product_model = run_extractor_agent(
                 html_content=html,
                 product_url=prod_url,
             )
+
+            product_model = validate_and_clean_product(product_model)
 
             save_product(product_model)
 
@@ -124,12 +139,12 @@ def extract_products_from_queue(max_products: int = MAX_POC_PRODUCTS) -> int:
 
 
 def run_pipeline() -> None:
-    """
-    Main pipeline:
-    1. Initialize DB and seed categories.
-    2. Discover product URLs from category pages.
-    3. Extract structured product data from product pages.
-    """
+
+    # Main pipeline:
+    # 1. Initialize database and seed categories.
+    # 2. Discover product URLs from category pages.
+    # 3. Extract structured product data from product pages.
+
     bootstrap_system()
 
     discover_product_urls_from_categories()

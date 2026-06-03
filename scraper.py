@@ -4,9 +4,9 @@ from playwright.sync_api import sync_playwright
 
 
 def fetch_page_content(url: str) -> str:
-    """
-    Start a headless browser, visit URL, and return the full page HTML source.
-    """
+    
+    # Start a headless browser, visit the URL, and return the rendered page HTML.
+    
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
 
@@ -24,14 +24,21 @@ def fetch_page_content(url: str) -> str:
         try:
             print(f"[Fetch] Visiting: {url}")
 
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.goto(
+                url,
+                wait_until="domcontentloaded",
+                timeout=30000,
+            )
 
-            # Let dynamic content load
+            # Wait briefly for dynamic content.
             page.wait_for_timeout(3000)
 
-            # Scroll down to trigger lazy-loaded product listings
+            # Scroll to trigger lazy-loaded content if present.
             page.mouse.wheel(0, 3000)
             page.wait_for_timeout(2000)
+
+            # Small random delay to reduce request pattern.
+            time.sleep(random.uniform(1.0, 2.0))
 
             html_content = page.content()
             return html_content
@@ -43,3 +50,24 @@ def fetch_page_content(url: str) -> str:
         finally:
             context.close()
             browser.close()
+
+
+def fetch_page_with_retry(url: str, max_retries: int = 3, delay_seconds: int = 2) -> str:
+    
+    # Fetch a page with simple retry logic.
+    # If fetching fails, retry a limited number of times before raising the final error.
+    
+    last_error = None
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            return fetch_page_content(url)
+
+        except Exception as e:
+            last_error = e
+            print(f"[Retry] Attempt {attempt}/{max_retries} failed for {url}: {e}")
+
+            if attempt < max_retries:
+                time.sleep(delay_seconds)
+
+    raise last_error
